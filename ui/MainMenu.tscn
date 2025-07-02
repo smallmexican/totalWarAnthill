@@ -1,0 +1,16 @@
+[gd_scene load_steps=2 format=3 uid="uid://c8fd7x8d0hou6"]
+
+[ext_resource type="Script" path="res://scripts/main_menu.gd" id="1_1sc3p"]
+
+[node name="MainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("1_1sc3p")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+alignment = 1
