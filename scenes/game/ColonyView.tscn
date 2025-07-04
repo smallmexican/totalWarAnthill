@@ -1,138 +1,68 @@
-[gd_scene load_steps=2 format=3 uid="uid://b4h6y2x5n8qwe"]
+[gd_scene load_steps=2 format=3 uid="uid://b4n8h6xww7nkp"]
 
-[ext_resource type="Script" path="res://scripts/game/colony_view.gd" id="1_m7j8k"]
+[ext_resource type="Script" path="res://scripts/game/colony_view.gd" id="1_j8xbj"]
 
-[node name="ColonyView" type="Node2D"]
-script = ExtResource("1_m7j8k")
-
-[node name="Background" type="ColorRect" parent="."]
-offset_right = 1280.0
-offset_bottom = 720.0
-color = Color(0.4, 0.2, 0.1, 1)
-
-[node name="UI" type="Control" parent="."]
+[node name="ColonyView" type="Control" node_paths=PackedStringArray("background")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_right = 1280.0
-offset_bottom = 720.0
+mouse_filter = 1
+script = ExtResource("1_j8xbj")
+background = NodePath("Background")
 
-[node name="Title" type="Label" parent="UI"]
+[node name="Background" type="ColorRect" parent="."]
 layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -150.0
-offset_top = 20.0
-offset_right = 150.0
-offset_bottom = 50.0
-text = "COLONY VIEW - PLACEHOLDER"
-horizontal_alignment = 1
-
-[node name="ColonyInfo" type="Label" parent="UI"]
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
+anchors_preset = 15
 anchor_right = 1.0
-offset_left = -250.0
-offset_top = 20.0
-offset_right = -20.0
-offset_bottom = 150.0
-text = "🏠 Main Colony
-
-👥 Population: 50
-🍯 Food: 100
-🏗️ Rooms: 3
-
-📊 Worker Roles:
-  🔨 Diggers: 15
-  👶 Nurses: 10
-  🌾 Foragers: 20
-  ⚔️ Guards: 5"
-vertical_alignment = 1
-
-[node name="Instructions" type="Label" parent="UI"]
-layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -200.0
-offset_top = -120.0
-offset_right = 200.0
-offset_bottom = -20.0
-text = "Controls:
-ESC/B - Return to Strategic Map
-D - Dig new tunnel (placeholder)
-W - Manage workers (placeholder)
+color = Color(0.2, 0.3, 0.1, 1)
+mouse_filter = 2
 
-Future: Underground tunnel system,
-room construction, worker management"
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer"]
+layout_mode = 2
+mouse_filter = 1
+
+[node name="Title" type="Label" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+text = "Colony View"
 horizontal_alignment = 1
-vertical_alignment = 1
 
-[node name="TunnelSystem" type="Control" parent="UI"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -300.0
-offset_top = -150.0
-offset_right = 100.0
-offset_bottom = 50.0
-
-[node name="Nursery" type="Button" parent="UI/TunnelSystem"]
-layout_mode = 1
-offset_left = 50.0
-offset_top = 20.0
-offset_right = 150.0
-offset_bottom = 60.0
-text = "🥚 Nursery
-(12 larvae)"
-
-[node name="FoodStorage" type="Button" parent="UI/TunnelSystem"]
-layout_mode = 1
-offset_left = 200.0
-offset_top = 80.0
-offset_right = 350.0
-offset_bottom = 120.0
-text = "🍯 Food Storage
-(100 units)"
-
-[node name="MainTunnel" type="Button" parent="UI/TunnelSystem"]
-layout_mode = 1
-offset_left = 50.0
-offset_top = 140.0
-offset_right = 350.0
-offset_bottom = 180.0
-text = "🕳️ Main Tunnel - Workers moving here"
-
-[node name="ActionButtons" type="VBoxContainer" parent="UI"]
-layout_mode = 1
-anchors_preset = 4
-anchor_top = 0.5
-anchor_bottom = 0.5
-offset_left = 50.0
-offset_top = -100.0
-offset_right = 200.0
-offset_bottom = 100.0
-
-[node name="DigButton" type="Button" parent="UI/ActionButtons"]
+[node name="HSeparator" type="HSeparator" parent="CenterContainer/VBoxContainer"]
 layout_mode = 2
-text = "🔨 Dig New Tunnel"
 
-[node name="ManageWorkersButton" type="Button" parent="UI/ActionButtons"]
+[node name="ButtonContainer" type="VBoxContainer" parent="CenterContainer/VBoxContainer"]
 layout_mode = 2
-text = "👷 Manage Workers"
+mouse_filter = 1
 
-[node name="BackButton" type="Button" parent="UI/ActionButtons"]
+[node name="ManageButton" type="Button" parent="CenterContainer/VBoxContainer/ButtonContainer"]
 layout_mode = 2
-text = "🔙 Back to Map"
+text = "Manage Colony"
+mouse_filter = 0
 
-[connection signal="pressed" from="UI/ActionButtons/DigButton" to="." method="simulate_digging"]
-[connection signal="pressed" from="UI/ActionButtons/ManageWorkersButton" to="." method="simulate_worker_assignment"]
-[connection signal="pressed" from="UI/ActionButtons/BackButton" to="." method="return_to_strategic_map"]
+[node name="BuildButton" type="Button" parent="CenterContainer/VBoxContainer/ButtonContainer"]
+layout_mode = 2
+text = "Build Structures"
+mouse_filter = 0
+
+[node name="ResourcesButton" type="Button" parent="CenterContainer/VBoxContainer/ButtonContainer"]
+layout_mode = 2
+text = "View Resources"
+mouse_filter = 0
+
+[node name="BackButton" type="Button" parent="CenterContainer/VBoxContainer/ButtonContainer"]
+layout_mode = 2
+text = "Back to Strategic Map"
+mouse_filter = 0
+
+[connection signal="pressed" from="CenterContainer/VBoxContainer/ButtonContainer/ManageButton" to="." method="_on_manage_button_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/ButtonContainer/BuildButton" to="." method="_on_build_button_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/ButtonContainer/ResourcesButton" to="." method="_on_resources_button_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/ButtonContainer/BackButton" to="." method="_on_back_button_pressed"]

@@ -29,9 +29,15 @@ extends Control
 ## Communicates with the Main scene manager to begin gameplay
 ## @note: This will load the Strategic Map scene (when implemented)
 func _on_start_button_pressed() -> void:
+	print("MainMenu: Start Game button pressed")
 	# Access the Main scene (root of the scene tree) and call start_game()
 	# This follows the scene management pattern established in Main.gd
-	get_tree().root.get_node("Main").start_game()
+	var main_scene = get_tree().root.get_node("Main")
+	if main_scene:
+		print("MainMenu: Found Main scene, calling start_game()")
+		main_scene.start_game()
+	else:
+		print("MainMenu: ERROR - Main scene not found!")
 
 ## Handles the "Settings" button press  
 ## Loads the settings menu through the Main scene manager
@@ -39,7 +45,7 @@ func _on_start_button_pressed() -> void:
 func _on_settings_button_pressed() -> void:
 	# Load the settings menu via Main scene manager
 	# This maintains consistent scene switching through the central manager
-	get_tree().root.get_node("Main").load_menu("res://scenes/ui/SettingsMenu.tscn")
+	get_tree().root.get_node("Main").show_settings_menu()
 
 ## Handles the "Quit" button press
 ## Cleanly exits the application

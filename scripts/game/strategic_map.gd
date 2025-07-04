@@ -39,34 +39,65 @@ func _ready():
 	# Get reference to the main scene manager
 	main_scene_manager = get_tree().root.get_node("Main")
 	
+	# Debug: Verify the main scene manager reference
+	if main_scene_manager:
+		print("✅ Main scene manager found: ", main_scene_manager.name)
+		# Check if show_pause_menu method exists
+		if main_scene_manager.has_method("show_pause_menu"):
+			print("✅ show_pause_menu method exists")
+		else:
+			print("❌ show_pause_menu method NOT found!")
+	else:
+		print("❌ Failed to get main scene manager!")
+	
 	# Display placeholder message
 	print("=== STRATEGIC MAP LOADED ===")
 	print("This is a placeholder scene.")
 	print("Controls:")
-	print("  ESC - Return to Main Menu")
+	print("  ESC - Show Game Menu (Save/Load/Settings/Main Menu)")
 	print("  C - Enter Colony View")
 	print("  P - Show Pause Menu")
+	print("  Click Colony Button - Enter Colony View")
 
 ## Handle input for placeholder functionality
 func _input(event):
 	# Debug: Print all key presses to help diagnose issues
 	if event is InputEventKey and event.pressed:
-		print("Key pressed: ", event.keycode, " (", char(event.keycode), ")")
+		var key_name = OS.get_keycode_string(event.keycode)
+		print("Key pressed: ", event.keycode, " (", key_name, ")")
 	
-	# Return to main menu on ESC
+	# Return to main menu on ESC (ui_cancel)
 	if event.is_action_pressed("ui_cancel"):
-		print("ESC key detected - returning to main menu")
-		return_to_main_menu()
+		print("ESC key detected (ui_cancel) - showing game menu")
+		get_viewport().set_input_as_handled()
+		show_game_menu()
+		return
+	
+	# Alternative ESC key detection (direct keycode check)
+	if event is InputEventKey and event.keycode == KEY_ESCAPE and event.pressed:
+		print("ESC key detected (direct) - showing game menu")
+		get_viewport().set_input_as_handled()
+		show_game_menu()
+		return
 	
 	# Enter colony view on C key
-	if event.is_action_pressed("ui_accept") or (event is InputEventKey and event.keycode == KEY_C and event.pressed):
+	if event is InputEventKey and event.keycode == KEY_C and event.pressed:
 		print("C key detected - entering colony view")
+		get_viewport().set_input_as_handled()
 		enter_colony_view()
+		return
 	
 	# Show pause menu on P key
 	if event is InputEventKey and event.keycode == KEY_P and event.pressed:
 		print("P key detected - showing pause menu")
+		get_viewport().set_input_as_handled()
 		show_pause_menu()
+		return
+	
+	## Debug mouse input to see if ANY clicks are detected
+	if event is InputEventMouseButton and event.pressed:
+		print("Mouse click detected at: ", event.position)
+		print("Button: ", event.button_index)
 
 # ------------------------------------------------------------------------------
 # SCENE TRANSITION METHODS
@@ -84,9 +115,28 @@ func return_to_main_menu():
 ## Enter colony management view
 ## @note: This will load the colony management scene
 func enter_colony_view():
-	print("Entering Colony View...")
+	print("StrategicMap: enter_colony_view() called")
 	if main_scene_manager:
-		main_scene_manager.load_game_scene("res://scenes/game/ColonyView.tscn")
+		print("StrategicMap: main_scene_manager found, calling load_game_scene()")
+		if main_scene_manager.has_method("load_game_scene"):
+			print("StrategicMap: load_game_scene method exists")
+			main_scene_manager.load_game_scene("res://scenes/game/ColonyView.tscn")
+		else:
+			print("ERROR: load_game_scene method NOT found!")
+	else:
+		print("ERROR: main_scene_manager is null!")
+
+## Show the game menu (in-game menu with save/load/settings options)
+## @note: Shows game menu as overlay without clearing this scene
+func show_game_menu():
+	print("StrategicMap: show_game_menu() called")
+	if main_scene_manager:
+		print("StrategicMap: main_scene_manager found, calling show_game_menu()")
+		if main_scene_manager.has_method("show_game_menu"):
+			print("StrategicMap: show_game_menu method exists on main_scene_manager")
+			main_scene_manager.show_game_menu()
+		else:
+			print("ERROR: show_game_menu method NOT found on main_scene_manager!")
 	else:
 		print("ERROR: main_scene_manager is null!")
 
@@ -127,3 +177,22 @@ func advance_turn():
 ## TODO: Implement event system
 func check_random_events():
 	pass
+
+# ------------------------------------------------------------------------------
+# UI SIGNAL HANDLERS
+# ------------------------------------------------------------------------------
+
+## Handle colony button press
+## @note: Signal handler for the ColonyButton
+func _on_colony_button_pressed() -> void:
+	print("=== COLONY BUTTON SIGNAL FIRED ===")
+	print("Colony button clicked!")
+	enter_colony_view()
+
+## Handle when mouse enters the colony button area
+func _on_colony_button_mouse_entered() -> void:
+	print("Mouse entered colony button area")
+
+## Handle when mouse exits the colony button area  
+func _on_colony_button_mouse_exited() -> void:
+	print("Mouse exited colony button area")

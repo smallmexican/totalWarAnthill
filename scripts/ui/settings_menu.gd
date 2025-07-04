@@ -31,6 +31,7 @@ var main_scene_manager: Node
 
 ## Store which menu called this settings menu (for proper back navigation)
 var calling_menu: String = "res://ui/MainMenu.tscn"
+var is_in_game: bool = false  # Track if called from in-game menu
 
 # ------------------------------------------------------------------------------
 # PLACEHOLDER SETTINGS VALUES
@@ -69,8 +70,12 @@ func _ready():
 ## Return to the previous menu (Main Menu or Pause Menu)
 func _on_back_button_pressed() -> void:
 	print("Returning to previous menu...")
-	# TODO: Remember which menu opened settings and return there
-	main_scene_manager.load_menu(calling_menu)
+	if is_in_game:
+		# If we're in-game, show the game menu again
+		main_scene_manager.show_game_menu()
+	else:
+		# Otherwise return to the calling menu (usually main menu)
+		main_scene_manager.load_menu(calling_menu)
 
 ## Apply current settings (placeholder)
 func _on_apply_button_pressed() -> void:
@@ -163,6 +168,18 @@ func reset_to_defaults():
 	
 	# TODO: Update UI elements to reflect defaults
 	print("Settings reset to defaults")
+
+# ------------------------------------------------------------------------------
+# CONTEXT SETTING METHODS
+# ------------------------------------------------------------------------------
+
+## Set the calling context for proper back navigation
+## @param menu_path: String path to the menu that opened settings
+## @param in_game: bool whether settings was opened from in-game
+func set_calling_context(menu_path: String = "res://ui/MainMenu.tscn", in_game: bool = false):
+	calling_menu = menu_path
+	is_in_game = in_game
+	print("Settings menu context set - calling_menu: ", menu_path, ", in_game: ", in_game)
 
 ## Set which menu to return to when back is pressed
 ## @param menu_path: String path to the calling menu scene

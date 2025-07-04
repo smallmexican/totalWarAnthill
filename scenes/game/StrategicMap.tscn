@@ -9,62 +9,42 @@ script = ExtResource("1_0j8vm")
 offset_right = 1280.0
 offset_bottom = 720.0
 color = Color(0.2, 0.4, 0.2, 1)
+mouse_filter = 2
 
-[node name="UI" type="Control" parent="."]
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_right = 1280.0
-offset_bottom = 720.0
-
-[node name="Title" type="Label" parent="UI"]
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -150.0
+[node name="Title" type="Label" parent="."]
+offset_left = 540.0
 offset_top = 50.0
-offset_right = 150.0
+offset_right = 740.0
 offset_bottom = 100.0
 text = "STRATEGIC MAP - PLACEHOLDER"
 horizontal_alignment = 1
 
-[node name="Instructions" type="Label" parent="UI"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -200.0
-offset_top = -100.0
-offset_right = 200.0
-offset_bottom = 100.0
+[node name="Instructions" type="Label" parent="."]
+offset_left = 440.0
+offset_top = 250.0
+offset_right = 840.0
+offset_bottom = 450.0
 text = "This is the Strategic Map placeholder.
 
 Controls:
-ESC - Return to Main Menu
+ESC - Game Menu (Save/Load/Settings)
 C - Enter Colony View  
 P - Show Pause Menu
+Click Colony Button - Enter Colony
 
 Future: Garden overview, colony management,
 army movement, territory control"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="PlaceholderColony" type="Button" parent="UI"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -60.0
-offset_top = 150.0
-offset_right = 60.0
-offset_bottom = 200.0
-text = "Colony 1
-(Click me!)"
+[node name="ColonyButton" type="Button" parent="."]
+offset_left = 590.0
+offset_top = 600.0
+offset_right = 690.0
+offset_bottom = 650.0
+text = "🏠 Colony 1
+(Click to Enter)"
 
-[connection signal="pressed" from="UI/PlaceholderColony" to="." method="enter_colony_view"]
+[connection signal="pressed" from="ColonyButton" to="." method="_on_colony_button_pressed"]
+[connection signal="mouse_entered" from="ColonyButton" to="." method="_on_colony_button_mouse_entered"]
+[connection signal="mouse_exited" from="ColonyButton" to="." method="_on_colony_button_mouse_exited"]

@@ -22,7 +22,7 @@
 # TODO: Replace with actual colony management implementation
 # ==============================================================================
 
-extends Node2D
+extends Control
 
 # ------------------------------------------------------------------------------
 # PLACEHOLDER VARIABLES
@@ -30,6 +30,9 @@ extends Node2D
 
 ## Reference to the main scene manager for transitions
 var main_scene_manager: Node
+
+## Reference to the background node for color changes
+@export var background: ColorRect
 
 ## Placeholder colony data
 var colony_data = {
@@ -78,8 +81,12 @@ func _input(event):
 
 ## Return to the strategic map
 func return_to_strategic_map():
+	print("=== BACK BUTTON CLICKED ===")
 	print("Returning to Strategic Map...")
-	main_scene_manager.load_game_scene("res://scenes/game/StrategicMap.tscn")
+	if main_scene_manager:
+		main_scene_manager.load_game_scene("res://scenes/game/StrategicMap.tscn")
+	else:
+		print("ERROR: main_scene_manager is null!")
 
 # ------------------------------------------------------------------------------
 # PLACEHOLDER FUNCTIONALITY
@@ -88,6 +95,7 @@ func return_to_strategic_map():
 ## Simulate the digging mechanic
 ## TODO: Implement actual tunnel creation system
 func simulate_digging():
+	print("=== DIG BUTTON CLICKED ===")
 	print("🐜 Workers are digging a new tunnel...")
 	print("💡 Future: Click and drag to create tunnel paths")
 	print("💡 Future: Different room types (nursery, storage, etc.)")
@@ -95,6 +103,7 @@ func simulate_digging():
 ## Simulate worker role assignment
 ## TODO: Implement actual worker management system
 func simulate_worker_assignment():
+	print("=== MANAGE WORKERS BUTTON CLICKED ===")
 	print("👷 Assigning worker roles...")
 	print("Current workers:")
 	print("  - Diggers: 15")
@@ -143,3 +152,32 @@ func update_pheromone_trails():
 ## TODO: Implement colony progression system
 func process_colony_growth():
 	pass
+
+# ------------------------------------------------------------------------------
+# BUTTON HANDLERS
+# ------------------------------------------------------------------------------
+
+## Handle the Manage Colony button click
+func _on_manage_button_pressed():
+	print("=== MANAGE BUTTON CLICKED ===")
+	print("🐜 Managing colony operations...")
+	simulate_worker_assignment()
+
+## Handle the Build Structures button click
+func _on_build_button_pressed():
+	print("=== BUILD BUTTON CLICKED ===")
+	print("🏗️ Building structures...")
+	simulate_digging()
+
+## Handle the View Resources button click
+func _on_resources_button_pressed():
+	print("=== RESOURCES BUTTON CLICKED ===")
+	print("📦 Viewing colony resources...")
+	print("Food Storage: ", colony_data.food_storage)
+	print("Population: ", colony_data.population)
+	print("Available Materials: Stone x15, Dirt x50")
+
+## Handle the Back button click
+func _on_back_button_pressed():
+	print("=== BACK BUTTON CLICKED ===")
+	return_to_strategic_map()
