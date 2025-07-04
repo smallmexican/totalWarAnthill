@@ -74,10 +74,14 @@ func _input(event):
 ## Resume the game and return to previous scene
 ## @note: Closes the game menu overlay to resume the game
 func _on_resume_button_pressed() -> void:
-	print("Resuming game...")
-	# Simply close the game menu to resume the game
-	# The game scene remains active in the background
-	queue_free()
+	print("GameMenu: Resume button pressed")
+	# Notify Main.gd to properly clear the menu layer and restore input
+	if main_scene_manager:
+		main_scene_manager.clear_menu_layer()
+	else:
+		print("ERROR: main_scene_manager is null!")
+		# Fallback: just free this menu
+		queue_free()
 
 ## Save the current game state
 ## @note: Placeholder functionality - to be implemented

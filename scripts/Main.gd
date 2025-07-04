@@ -74,6 +74,10 @@ func load_menu(path: String):
 	
 	# Add it to the MenuLayer for display
 	$MenuLayer.add_child(menu)
+	
+	# Enable input blocking when menu is present
+	$MenuLayer.mouse_filter = Control.MOUSE_FILTER_STOP
+	print("Main.gd: MenuLayer mouse_filter set to STOP (menu loaded)")
 
 # ------------------------------------------------------------------------------
 # GAME SCENE MANAGEMENT METHODS  
@@ -120,6 +124,10 @@ func load_game_scene(path: String):
 	# Clear any existing menu content since we're starting a game
 	clear_menu_layer()
 	print("Main.gd: MenuLayer cleared")
+	
+	# Disable input blocking when no menu is present
+	$MenuLayer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	print("Main.gd: MenuLayer mouse_filter set to IGNORE (game scene active)")
 
 # ------------------------------------------------------------------------------
 # PAUSE MENU MANAGEMENT METHODS
@@ -140,6 +148,10 @@ func show_pause_menu():
 	
 	# Add it to the MenuLayer as an overlay
 	$MenuLayer.add_child(pause_menu)
+	
+	# Enable input blocking when menu is present
+	$MenuLayer.mouse_filter = Control.MOUSE_FILTER_STOP
+	print("Main.gd: MenuLayer mouse_filter set to STOP (pause menu loaded)")
 
 ## Show game menu as an overlay without clearing the current game scene
 ## @note: This is the in-game menu accessed via ESC key during gameplay
@@ -172,6 +184,10 @@ func show_game_menu():
 	# Add it to the MenuLayer as an overlay
 	$MenuLayer.add_child(game_menu)
 	print("Main.gd: GameMenu added to MenuLayer")
+	
+	# Enable input blocking when menu is present
+	$MenuLayer.mouse_filter = Control.MOUSE_FILTER_STOP
+	print("Main.gd: MenuLayer mouse_filter set to STOP (game menu loaded)")
 
 ## Show settings menu as an overlay
 ## @param calling_menu: String path to the menu that opened settings
@@ -189,6 +205,10 @@ func show_settings_menu(calling_menu: String = "res://ui/MainMenu.tscn", in_game
 	
 	# Add it to the MenuLayer as an overlay
 	$MenuLayer.add_child(settings_menu)
+	
+	# Enable input blocking when menu is present
+	$MenuLayer.mouse_filter = Control.MOUSE_FILTER_STOP
+	print("Main.gd: MenuLayer mouse_filter set to STOP (settings menu loaded)")
 
 # ------------------------------------------------------------------------------
 # UTILITY METHODS
@@ -210,6 +230,16 @@ func clear_menu_layer():
 	# queue_free() ensures cleanup happens at a safe time
 	for child in $MenuLayer.get_children():
 		child.queue_free()
+	
+	# Defer the mouse filter change until after nodes are actually freed
+	# This prevents timing issues where menu nodes might still handle input
+	call_deferred("_set_menu_layer_ignore")
+	print("Main.gd: MenuLayer cleared, mouse_filter change deferred")
+
+## Set MenuLayer mouse filter to IGNORE after menu nodes are freed
+func _set_menu_layer_ignore():
+	$MenuLayer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	print("Main.gd: MenuLayer mouse_filter set to IGNORE (deferred)")
 
 # ------------------------------------------------------------------------------
 # FUTURE METHODS (TO BE IMPLEMENTED)

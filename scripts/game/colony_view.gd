@@ -48,6 +48,10 @@ var colony_data = {
 
 ## Initialize the colony view
 func _ready():
+	# Ensure the Control node fills the entire viewport when added to Node2D parent
+	# This fixes centering issues when Control is child of Node2D (GameLayer)
+	call_deferred("_setup_viewport_size")
+	
 	# Get reference to the main scene manager
 	main_scene_manager = get_tree().root.get_node("Main")
 	
@@ -60,6 +64,24 @@ func _ready():
 	print("  ESC/B - Return to Strategic Map")
 	print("  D - Dig new tunnel (placeholder)")
 	print("  W - Assign worker roles (placeholder)")
+
+## Setup proper viewport sizing after the node is in the scene tree
+func _setup_viewport_size():
+	# Get the current viewport size
+	var viewport = get_viewport()
+	if viewport:
+		var viewport_size = viewport.get_visible_rect().size
+		
+		# Set this Control node to fill the entire viewport
+		set_size(viewport_size)
+		set_position(Vector2.ZERO)
+		
+		print("=== COLONY VIEW SIZING ===")
+		print("Viewport size: ", viewport_size)
+		print("Control size: ", get_size())
+		print("Control position: ", get_position())
+	else:
+		print("ERROR: Cannot get viewport for sizing!")
 
 ## Handle input for placeholder functionality
 func _input(event):
