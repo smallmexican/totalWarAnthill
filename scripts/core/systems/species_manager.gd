@@ -35,17 +35,17 @@ var species_cache: Dictionary = {}
 var species_list: Array[String] = []
 var is_initialized: bool = false
 
-## Default species paths
+## Updated species paths to include simple versions
 var species_paths: Dictionary = {
-	"fire_ant": "res://data/species/fire_ant.tres",
-	"carpenter_ant": "res://data/species/carpenter_ant.tres",
+	"fire_ant": "res://data/species/fire_ant_simple.tres",
+	"carpenter_ant": "res://data/species/carpenter_ant_simple.tres", 
 	"leaf_cutter_ant": "res://data/species/leaf_cutter_ant.tres",
 	"army_ant": "res://data/species/army_ant.tres",
 	"harvester_ant": "res://data/species/harvester_ant.tres"
 }
 
 ## Fallback data for missing species
-var fallback_species_data: SpeciesData
+var fallback_species_data: Resource
 
 # ==============================================================================
 # INITIALIZATION
@@ -58,9 +58,7 @@ func _ready():
 
 ## Setup fallback species data
 func setup_fallback_data():
-	fallback_species_data = SpeciesData.create_balanced_template()
-	fallback_species_data.species_name = "Unknown Species"
-	fallback_species_data.species_id = "unknown"
+	create_fallback_species()
 
 ## Load all species data from files
 func load_all_species():
@@ -86,18 +84,46 @@ func load_all_species():
 # ==============================================================================
 
 ## Load a specific species from file
-func load_species(species_id: String) -> SpeciesData:
+func load_species(species_id: String) -> Resource:
 	var file_path = species_paths.get(species_id, "")
 	
 	if file_path.is_empty():
 		print("⚠️ No path defined for species: ", species_id)
-		return fallback_species_data
+		return get_fallback_species()
 	
 	# Try to load the resource file
-	var species_data = load(file_path) as SpeciesData
+	var species_resource = load(file_path)
+	
+	# Try SpeciesDataSimple first, then SpeciesData
+	var species_data = species_resource as SpeciesDataSimple
+	if not species_data:
+		species_data = species_resource as SpeciesData
 	
 	if species_data == null:
 		print("⚠️ Failed to load species data: ", file_path)
+		return get_fallback_species()
+	
+	# Cache the loaded species
+	species_cache[species_id] = species_data
+	species_list.append(species_id)
+	
+	print("✅ Loaded species: ", species_data.species_name, " (", species_id, ")")
+	species_loaded.emit(species_id, species_data)
+	
+	return species_data
+
+## Get fallback species data
+func get_fallback_species() -> Resource:
+	if not fallback_species_data:
+		create_fallback_species()
+	return fallback_species_data
+
+## Create fallback species data
+func create_fallback_species():
+	fallback_species_data = SpeciesDataSimple.new()
+	fallback_species_data.species_name = "Unknown Species"
+	fallback_species_data.species_id = "unknown"
+	fallback_species_data.description = "Fallback species data"
 		species_data = create_default_species_data(species_id)
 		save_species_data(species_id, species_data)
 	
@@ -111,7 +137,7 @@ func load_species(species_id: String) -> SpeciesData:
 	return species_data
 
 ## Get species data by ID
-func get_species_data(species_id: String) -> SpeciesData:
+func get_species_data(species_id: String) -> Resource:
 	if species_id in species_cache:
 		return species_cache[species_id]
 	
@@ -120,7 +146,7 @@ func get_species_data(species_id: String) -> SpeciesData:
 		return load_species(species_id)
 	
 	print("⚠️ Species not found: ", species_id, " - using fallback")
-	return fallback_species_data
+	return get_fallback_species()
 
 ## Check if species exists
 func has_species(species_id: String) -> bool:

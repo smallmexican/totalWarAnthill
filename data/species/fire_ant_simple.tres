@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="SpeciesDataSimple" load_steps=2 format=3 uid="uid://b5p8wc4j5xqpv"]
+
+[ext_resource type="Script" path="res://scripts/core/data/species_data_simple.gd" id="1_0vjrt"]
+
+[resource]
+script = ExtResource("1_0vjrt")
+species_name = "Fire Ant"
+species_id = "fire_ant"
+description = "Aggressive ants known for their fierce combat abilities and territorial nature."
+difficulty_rating = 2
+lore_text = "Fire ants are renowned throughout the garden for their military prowess and fiery temperament. Originally from arid regions, they have adapted to become formidable warriors with natural heat resistance and devastating fire attacks."
+origin_biome = "desert"
+natural_enemies = Array[String](["carpenter_ant", "leaf_cutter_ant"])
+natural_allies = Array[String](["army_ant"])
+attack_modifier = 1.3
+defense_modifier = 1.1
+speed_modifier = 1.0
+health_modifier = 1.2
+energy_modifier = 0.9
+food_efficiency = 0.9
+material_efficiency = 0.8
+water_efficiency = 0.7
+research_efficiency = 0.9
+reproduction_rate = 1.1
+max_population_bonus = 15
+worker_ratio = 0.5
+soldier_ratio = 0.4
+special_abilities = Array[String](["fire_attack", "heat_resistance"])
+passive_traits = Array[String](["aggressive", "territorial"])
+primary_color = Color(0.8, 0.2, 0.1)
+secondary_color = Color(1.0, 0.4, 0.2)

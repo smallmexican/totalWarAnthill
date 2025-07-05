@@ -31,7 +31,7 @@ extends Control
 # SPECIES MANAGEMENT
 # ==============================================================================
 
-var loaded_species: Array[SpeciesData] = []
+var loaded_species: Array[SpeciesDataSimple] = []
 var species_files: Array[String] = []
 
 func _ready():
@@ -64,12 +64,19 @@ func load_all_species():
 		while file_name != "":
 			if file_name.ends_with(".tres"):
 				var file_path = "res://data/species/" + file_name
-				var species_data = SpeciesCreator.load_species_from_file(file_path)
+				var species_resource = load(file_path)
+				
+				# Try to load as SpeciesDataSimple first, then SpeciesData
+				var species_data = species_resource as SpeciesDataSimple
+				if not species_data:
+					species_data = species_resource as SpeciesData
 				
 				if species_data:
 					loaded_species.append(species_data)
 					species_files.append(file_path)
 					species_list.add_item(species_data.species_name + " (" + species_data.species_id + ")")
+				else:
+					print("Warning: Could not load species from: ", file_path)
 			
 			file_name = dir.get_next()
 	
@@ -116,14 +123,43 @@ func _on_create_species():
 	dialog.popup_centered()
 
 func create_new_species(species_id: String, species_name: String):
-	var species_data = SpeciesCreator.create_species_template(species_id, species_name)
-	var file_path = "res://data/species/" + species_id + ".tres"
+	var species_data = SpeciesDataSimple.new()
 	
-	if SpeciesCreator.save_species_to_file(species_data, file_path):
+	# Set basic properties
+	species_data.species_id = species_id
+	species_data.species_name = species_name
+	species_data.description = "A new ant species with unique characteristics."
+	species_data.difficulty_rating = 2
+	species_data.lore_text = "Add lore text here..."
+	species_data.origin_biome = "forest"
+	
+	# Set balanced base stats
+	species_data.attack_modifier = 1.0
+	species_data.defense_modifier = 1.0
+	species_data.speed_modifier = 1.0
+	species_data.health_modifier = 1.0
+	species_data.energy_modifier = 1.0
+	
+	# Set resource efficiency
+	species_data.food_efficiency = 1.0
+	species_data.material_efficiency = 1.0
+	species_data.water_efficiency = 1.0
+	species_data.research_efficiency = 1.0
+	
+	# Set population defaults
+	species_data.reproduction_rate = 1.0
+	species_data.max_population_bonus = 0
+	species_data.worker_ratio = 0.6
+	species_data.soldier_ratio = 0.3
+	
+	var file_path = "res://data/species/" + species_id + "_simple.tres"
+	
+	var result = ResourceSaver.save(species_data, file_path)
+	if result == OK:
 		output_text.text = "Created new species: " + species_name + " at " + file_path
 		load_all_species()  # Refresh list
 	else:
-		output_text.text = "Error: Failed to save species file"
+		output_text.text = "Error: Failed to save species file. Error code: " + str(result)
 
 func _on_validate_all():
 	var report = "SPECIES VALIDATION REPORT\n"
@@ -133,7 +169,31 @@ func _on_validate_all():
 	
 	for i in range(loaded_species.size()):
 		var species = loaded_species[i]
-		var errors = SpeciesCreator.validate_species_data(species)
+		var errors: Array[String] = []
+		
+		# Basic validation for simplified species
+		if species.species_id.is_empty():
+			errors.append("species_id cannot be empty")
+		
+		if species.species_name.is_empty():
+			errors.append("species_name cannot be empty")
+		
+		# Check stat balance
+		var total_modifiers = species.get_total_stat_modifiers()
+		if total_modifiers > 6.0:
+			errors.append("Total stat modifiers may be too high: %.2f" % total_modifiers)
+		
+		if total_modifiers < 4.0:
+			errors.append("Total stat modifiers may be too low: %.2f" % total_modifiers)
+		
+		# Check ratios
+		var total_ratio = species.worker_ratio + species.soldier_ratio
+		if total_ratio > 1.0:
+			errors.append("Worker + Soldier ratio exceeds 1.0: %.2f" % total_ratio)
+		
+		# Check difficulty rating
+		if species.difficulty_rating < 1 or species.difficulty_rating > 3:
+			errors.append("Difficulty rating should be 1-3, got: %d" % species.difficulty_rating)
 		
 		report += "%s (%s):\n" % [species.species_name, species.species_id]
 		
@@ -160,7 +220,21 @@ func _on_export_selected():
 		return
 	
 	var species = loaded_species[selected[0]]
-	var json_data = SpeciesCreator.export_to_json(species)
+	
+	# Create simple JSON export
+	var data = {
+		"species_name": species.species_name,
+		"species_id": species.species_id,
+		"description": species.description,
+		"difficulty_rating": species.difficulty_rating,
+		"attack_modifier": species.attack_modifier,
+		"defense_modifier": species.defense_modifier,
+		"speed_modifier": species.speed_modifier,
+		"special_abilities": species.special_abilities,
+		"passive_traits": species.passive_traits
+	}
+	
+	var json_data = JSON.stringify(data, "\t")
 	
 	# Save to file
 	var file_path = "res://data/species/" + species.species_id + ".json"

@@ -30,6 +30,73 @@ extends Node2D
 ## Reference to the main scene manager for transitions
 var main_scene_manager: Node
 
+## Game configuration data passed from skirmish setup
+var game_config: Dictionary = {}
+
+## Current player species data
+var player_species_data: SpeciesDataSimple
+
+## Reference to the species stats bar UI
+@onready var species_stats_bar: Control = $SpeciesStatsBar
+
+# ----------------------------------------------------------------------------
+# GAMEPLAY INTEGRATION
+# -----------------------------------------------------------------------------
+
+## Initialize the strategic map with gameplay configuration
+func initialize_with_gameplay(config: Dictionary):
+	print("🎮 Initializing Strategic Map with gameplay config:")
+	print("   Player Species: ", config.get("player_species", "Unknown"))
+	print("   Opponent Species: ", config.get("opponent_species", "Unknown"))
+	
+	game_config = config
+	
+	# Load player species data
+	load_player_species_data()
+	
+	# Update the species stats bar
+	if species_stats_bar and player_species_data:
+		if species_stats_bar.has_method("update_species_display"):
+			species_stats_bar.call("update_species_display", player_species_data)
+			print("✅ Species stats bar updated with ", player_species_data.species_name)
+		else:
+			print("❌ Species stats bar missing update_species_display method")
+	else:
+		print("❌ Failed to update species stats bar")
+
+## Load the player's selected species data
+func load_player_species_data():
+	var player_species_id = game_config.get("player_species", "")
+	if player_species_id.is_empty():
+		print("❌ No player species specified in config")
+		return
+	
+	# Try to load from SpeciesManager singleton first
+	if SpeciesManager and SpeciesManager.has_method("get_species_data"):
+		player_species_data = SpeciesManager.get_species_data(player_species_id)
+		if player_species_data:
+			print("✅ Loaded species data from SpeciesManager: ", player_species_data.species_name)
+			return
+	
+	# Fallback: Load directly from file
+	var species_file_path = "res://data/species/" + player_species_id + "_simple.tres"
+	if FileAccess.file_exists(species_file_path):
+		player_species_data = load(species_file_path) as SpeciesDataSimple
+		if player_species_data:
+			print("✅ Loaded species data from file: ", player_species_data.species_name)
+		else:
+			print("❌ Failed to load species data from: ", species_file_path)
+	else:
+		print("❌ Species file not found: ", species_file_path)
+
+## Get singleton instance (helper method)
+func get_singleton(singleton_name: String) -> Node:
+	return Engine.get_singleton(singleton_name)
+
+## Check if singleton exists (helper method)
+func has_singleton(singleton_name: String) -> bool:
+	return Engine.has_singleton(singleton_name)
+
 # ------------------------------------------------------------------------------
 # GODOT LIFECYCLE METHODS
 # ------------------------------------------------------------------------------
@@ -49,6 +116,11 @@ func _ready():
 			print("❌ show_pause_menu method NOT found!")
 	else:
 		print("❌ Failed to get main scene manager!")
+	
+	# Ensure species stats bar doesn't block input
+	if species_stats_bar:
+		species_stats_bar.mouse_filter = Control.MOUSE_FILTER_PASS
+		print("✅ Species stats bar mouse filter set to PASS")
 	
 	# Display placeholder message
 	print("=== STRATEGIC MAP LOADED ===")

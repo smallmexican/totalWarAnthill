@@ -127,8 +127,15 @@ static func validate_species_data(species_data: SpeciesData) -> Array[String]:
 
 ## Save species data to .tres file
 static func save_species_to_file(species_data: SpeciesData, file_path: String) -> bool:
+	# Create a properly formatted resource file
 	var result = ResourceSaver.save(species_data, file_path)
-	return result == OK
+	
+	if result == OK:
+		print("Successfully saved species to: ", file_path)
+		return true
+	else:
+		push_error("Failed to save species to: " + file_path + " Error code: " + str(result))
+		return false
 
 ## Load species data from .tres file
 static func load_species_from_file(file_path: String) -> SpeciesData:
