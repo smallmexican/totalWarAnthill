@@ -26,16 +26,16 @@ extends Control
 # ------------------------------------------------------------------------------
 
 ## Handles the "Start Game" button press
-## Communicates with the Main scene manager to begin gameplay
-## @note: This will load the Strategic Map scene (when implemented)
+## Communicates with the Main scene manager to show game selection
+## @note: This will load the Game Selection menu to choose Campaign vs Skirmish
 func _on_start_button_pressed() -> void:
 	print("MainMenu: Start Game button pressed")
-	# Access the Main scene (root of the scene tree) and call start_game()
+	# Access the Main scene (root of the scene tree) and load game selection menu
 	# This follows the scene management pattern established in Main.gd
 	var main_scene = get_tree().root.get_node("Main")
 	if main_scene:
-		print("MainMenu: Found Main scene, calling start_game()")
-		main_scene.start_game()
+		print("MainMenu: Found Main scene, loading Game Selection menu")
+		main_scene.load_menu("res://scenes/ui/GameSelectionMenu.tscn")
 	else:
 		print("MainMenu: ERROR - Main scene not found!")
 

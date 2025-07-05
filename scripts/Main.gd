@@ -83,13 +83,13 @@ func load_menu(path: String):
 # GAME SCENE MANAGEMENT METHODS  
 # ------------------------------------------------------------------------------
 
-## Start the main game by loading the Strategic Map
-## Called from the main menu "Start Game" button
-## @note: This begins the core RTS gameplay experience
+## Start the main game by loading the Strategic Map (direct access)
+## @note: This bypasses the Game Selection menu for direct Skirmish mode
+## @deprecated: Consider using Game Selection menu instead for better UX
 func start_game():
-	print("Main.gd: start_game() called")
-	# Load the strategic map - the main overworld view
-	# This is where players manage colonies and move armies
+	print("Main.gd: start_game() called (direct Strategic Map)")
+	# Load the strategic map directly - used for direct game access
+	# Consider using Game Selection menu for better user experience
 	load_game_scene("res://scenes/game/StrategicMap.tscn")
 
 ## Load a gameplay scene into the GameLayer

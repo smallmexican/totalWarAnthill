@@ -16,8 +16,11 @@
 #
 # USAGE:
 # - Accessed from Strategic Map by selecting a colony
-# - Press ESC or B to return to Strategic Map
+# - Press ESC to open Game Menu (Save/Load/Settings/etc.)
+# - Press P to open Pause Menu
+# - Press B to return directly to Strategic Map
 # - Press D to simulate digging (placeholder)
+# - Press W to assign worker roles (placeholder)
 #
 # TODO: Replace with actual colony management implementation
 # ==============================================================================
@@ -61,7 +64,9 @@ func _ready():
 	print("Population: ", colony_data.population)
 	print("Food: ", colony_data.food_storage)
 	print("Controls:")
-	print("  ESC/B - Return to Strategic Map")
+	print("  ESC - Open Game Menu (Save/Load/Settings)")
+	print("  P - Open Pause Menu")
+	print("  B - Return to Strategic Map")
 	print("  D - Dig new tunnel (placeholder)")
 	print("  W - Assign worker roles (placeholder)")
 
@@ -85,9 +90,38 @@ func _setup_viewport_size():
 
 ## Handle input for placeholder functionality
 func _input(event):
-	# Return to strategic map on ESC or B
-	if event.is_action_pressed("ui_cancel") or (event is InputEventKey and event.keycode == KEY_B and event.pressed):
+	# Debug: Print all key presses to help diagnose issues
+	if event is InputEventKey and event.pressed:
+		var key_name = OS.get_keycode_string(event.keycode)
+		print("ColonyView Key pressed: ", event.keycode, " (", key_name, ")")
+	
+	# Show game menu on ESC (ui_cancel)
+	if event.is_action_pressed("ui_cancel"):
+		print("ESC key detected (ui_cancel) - showing game menu")
+		get_viewport().set_input_as_handled()
+		show_game_menu()
+		return
+	
+	# Alternative ESC key detection (direct keycode check)
+	if event is InputEventKey and event.keycode == KEY_ESCAPE and event.pressed:
+		print("ESC key detected (direct) - showing game menu")
+		get_viewport().set_input_as_handled()
+		show_game_menu()
+		return
+	
+	# Show pause menu on P key
+	if event is InputEventKey and event.keycode == KEY_P and event.pressed:
+		print("P key detected - showing pause menu")
+		get_viewport().set_input_as_handled()
+		show_pause_menu()
+		return
+	
+	# Return to strategic map on B key (alternative back option)
+	if event is InputEventKey and event.keycode == KEY_B and event.pressed:
+		print("B key detected - returning to strategic map")
+		get_viewport().set_input_as_handled()
 		return_to_strategic_map()
+		return
 	
 	# Simulate digging on D key
 	if event is InputEventKey and event.keycode == KEY_D and event.pressed:
@@ -107,6 +141,26 @@ func return_to_strategic_map():
 	print("Returning to Strategic Map...")
 	if main_scene_manager:
 		main_scene_manager.load_game_scene("res://scenes/game/StrategicMap.tscn")
+	else:
+		print("ERROR: main_scene_manager is null!")
+
+## Show the game menu overlay (ESC key functionality)
+## @note: Opens in-game menu without leaving colony view
+func show_game_menu():
+	print("=== GAME MENU REQUESTED ===")
+	print("Opening in-game menu from Colony View...")
+	if main_scene_manager:
+		main_scene_manager.show_game_menu()
+	else:
+		print("ERROR: main_scene_manager is null!")
+
+## Show the pause menu overlay (P key functionality)  
+## @note: Opens pause menu without leaving colony view
+func show_pause_menu():
+	print("=== PAUSE MENU REQUESTED ===")
+	print("Opening pause menu from Colony View...")
+	if main_scene_manager:
+		main_scene_manager.show_pause_menu()
 	else:
 		print("ERROR: main_scene_manager is null!")
 

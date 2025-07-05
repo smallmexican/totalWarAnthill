@@ -7,6 +7,8 @@ layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 mouse_filter = 1
 script = ExtResource("1_j8xbj")
 background = NodePath("Background")
@@ -16,19 +18,21 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-color = Color(0.2, 0.3, 0.1, 1)
+grow_horizontal = 2
+grow_vertical = 2
 mouse_filter = 2
+color = Color(0.2, 0.3, 0.1, 1)
 
 [node name="CenterContainer" type="CenterContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-mouse_filter = 1
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer"]
 layout_mode = 2
-mouse_filter = 1
 
 [node name="Title" type="Label" parent="CenterContainer/VBoxContainer"]
 layout_mode = 2
@@ -40,27 +44,22 @@ layout_mode = 2
 
 [node name="ButtonContainer" type="VBoxContainer" parent="CenterContainer/VBoxContainer"]
 layout_mode = 2
-mouse_filter = 1
 
 [node name="ManageButton" type="Button" parent="CenterContainer/VBoxContainer/ButtonContainer"]
 layout_mode = 2
 text = "Manage Colony"
-mouse_filter = 0
 
 [node name="BuildButton" type="Button" parent="CenterContainer/VBoxContainer/ButtonContainer"]
 layout_mode = 2
 text = "Build Structures"
-mouse_filter = 0
 
 [node name="ResourcesButton" type="Button" parent="CenterContainer/VBoxContainer/ButtonContainer"]
 layout_mode = 2
 text = "View Resources"
-mouse_filter = 0
 
 [node name="BackButton" type="Button" parent="CenterContainer/VBoxContainer/ButtonContainer"]
 layout_mode = 2
 text = "Back to Strategic Map"
-mouse_filter = 0
 
 [connection signal="pressed" from="CenterContainer/VBoxContainer/ButtonContainer/ManageButton" to="." method="_on_manage_button_pressed"]
 [connection signal="pressed" from="CenterContainer/VBoxContainer/ButtonContainer/BuildButton" to="." method="_on_build_button_pressed"]

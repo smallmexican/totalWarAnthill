@@ -1,0 +1,220 @@
+[gd_scene load_steps=2 format=3 uid="uid://blw8xr5qn2vcp"]
+
+[ext_resource type="Script" path="res://scripts/ui/skirmish_setup_menu.gd" id="1_h7x2k"]
+
+[node name="SkirmishSetupMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_h7x2k")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.08, 0.15, 0.08, 1)
+mouse_filter = 2
+
+[node name="Title" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -200.0
+offset_top = 30.0
+offset_right = 200.0
+offset_bottom = 70.0
+text = "⚔️ SKIRMISH SETUP"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="MainContainer" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -400.0
+offset_top = -200.0
+offset_right = 400.0
+offset_bottom = 200.0
+
+[node name="LeftPanel" type="VBoxContainer" parent="MainContainer"]
+layout_mode = 2
+custom_minimum_size = Vector2(250, 0)
+
+[node name="PlayerLabel" type="Label" parent="MainContainer/LeftPanel"]
+layout_mode = 2
+text = "🐜 YOUR SPECIES"
+horizontal_alignment = 1
+
+[node name="PlayerSpeciesContainer" type="VBoxContainer" parent="MainContainer/LeftPanel"]
+layout_mode = 2
+
+[node name="RedAntsButton" type="Button" parent="MainContainer/LeftPanel/PlayerSpeciesContainer"]
+layout_mode = 2
+toggle_mode = true
+button_pressed = true
+text = "🔴 Fire Ants"
+tooltip_text = "Aggressive warriors with strong attack power"
+
+[node name="BlackAntsButton" type="Button" parent="MainContainer/LeftPanel/PlayerSpeciesContainer"]
+layout_mode = 2
+toggle_mode = true
+text = "⚫ Carpenter Ants"
+tooltip_text = "Excellent builders and tunnel diggers"
+
+[node name="YellowAntsButton" type="Button" parent="MainContainer/LeftPanel/PlayerSpeciesContainer"]
+layout_mode = 2
+toggle_mode = true
+text = "🟡 Harvester Ants"
+tooltip_text = "Superior food gatherers and resource managers"
+
+[node name="HSeparator" type="HSeparator" parent="MainContainer/LeftPanel"]
+layout_mode = 2
+
+[node name="OpponentLabel" type="Label" parent="MainContainer/LeftPanel"]
+layout_mode = 2
+text = "🤖 OPPONENT"
+horizontal_alignment = 1
+
+[node name="OpponentSpeciesContainer" type="VBoxContainer" parent="MainContainer/LeftPanel"]
+layout_mode = 2
+
+[node name="OpponentSpeciesOption" type="OptionButton" parent="MainContainer/LeftPanel/OpponentSpeciesContainer"]
+layout_mode = 2
+text = "Random Species"
+tooltip_text = "AI opponent will use a random ant species"
+
+[node name="OpponentDifficultyContainer" type="VBoxContainer" parent="MainContainer/LeftPanel"]
+layout_mode = 2
+
+[node name="DifficultyLabel" type="Label" parent="MainContainer/LeftPanel/OpponentDifficultyContainer"]
+layout_mode = 2
+text = "Difficulty:"
+horizontal_alignment = 1
+
+[node name="DifficultyOption" type="OptionButton" parent="MainContainer/LeftPanel/OpponentDifficultyContainer"]
+layout_mode = 2
+text = "Normal"
+tooltip_text = "Balanced AI opponent"
+
+[node name="CenterPanel" type="VBoxContainer" parent="MainContainer"]
+layout_mode = 2
+custom_minimum_size = Vector2(300, 0)
+
+[node name="MapLabel" type="Label" parent="MainContainer/CenterPanel"]
+layout_mode = 2
+text = "🗺️ MAP SELECTION"
+horizontal_alignment = 1
+
+[node name="MapPreviewContainer" type="VBoxContainer" parent="MainContainer/CenterPanel"]
+layout_mode = 2
+
+[node name="MapPreview" type="ColorRect" parent="MainContainer/CenterPanel/MapPreviewContainer"]
+layout_mode = 2
+custom_minimum_size = Vector2(280, 150)
+color = Color(0.3, 0.5, 0.3, 1)
+
+[node name="MapPreviewLabel" type="Label" parent="MainContainer/CenterPanel/MapPreviewContainer/MapPreview"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -60.0
+offset_top = -10.0
+offset_right = 60.0
+offset_bottom = 10.0
+text = "Garden Valley"
+horizontal_alignment = 1
+
+[node name="MapSelectionContainer" type="VBoxContainer" parent="MainContainer/CenterPanel"]
+layout_mode = 2
+
+[node name="MapOption" type="OptionButton" parent="MainContainer/CenterPanel/MapSelectionContainer"]
+layout_mode = 2
+text = "Garden Valley"
+tooltip_text = "A peaceful garden setting with moderate resources"
+
+[node name="RightPanel" type="VBoxContainer" parent="MainContainer"]
+layout_mode = 2
+custom_minimum_size = Vector2(250, 0)
+
+[node name="MatchInfoLabel" type="Label" parent="MainContainer/RightPanel"]
+layout_mode = 2
+text = "📋 MATCH INFO"
+horizontal_alignment = 1
+
+[node name="InfoContainer" type="VBoxContainer" parent="MainContainer/RightPanel"]
+layout_mode = 2
+
+[node name="PlayerInfoLabel" type="Label" parent="MainContainer/RightPanel/InfoContainer"]
+layout_mode = 2
+text = "Player: Fire Ants"
+
+[node name="OpponentInfoLabel" type="Label" parent="MainContainer/RightPanel/InfoContainer"]
+layout_mode = 2
+text = "Opponent: Random (Normal)"
+
+[node name="MapInfoLabel" type="Label" parent="MainContainer/RightPanel/InfoContainer"]
+layout_mode = 2
+text = "Map: Garden Valley"
+
+[node name="HSeparator2" type="HSeparator" parent="MainContainer/RightPanel"]
+layout_mode = 2
+
+[node name="SpeciesInfoLabel" type="Label" parent="MainContainer/RightPanel"]
+layout_mode = 2
+text = "🔴 FIRE ANTS"
+horizontal_alignment = 1
+
+[node name="SpeciesInfoText" type="RichTextLabel" parent="MainContainer/RightPanel"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 120)
+bbcode_enabled = true
+text = "[b]Fire Ants[/b]
+
+[color=red]+ Strong Attack[/color]
+[color=red]+ Fast Workers[/color]
+[color=yellow]- Moderate Defense[/color]
+[color=yellow]- Average Resources[/color]
+
+Aggressive species focused on rapid expansion and combat."
+
+[node name="BottomContainer" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 50.0
+offset_top = -80.0
+offset_right = 1100.0
+offset_bottom = -30.0
+
+[node name="BackButton" type="Button" parent="BottomContainer"]
+layout_mode = 2
+text = "← Back"
+tooltip_text = "Return to Game Selection"
+
+[node name="Spacer" type="Control" parent="BottomContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="StartMatchButton" type="Button" parent="BottomContainer"]
+layout_mode = 2
+text = "Start Match →"
+tooltip_text = "Begin the skirmish battle"
+
+[connection signal="pressed" from="MainContainer/LeftPanel/PlayerSpeciesContainer/RedAntsButton" to="." method="_on_red_ants_button_pressed"]
+[connection signal="pressed" from="MainContainer/LeftPanel/PlayerSpeciesContainer/BlackAntsButton" to="." method="_on_black_ants_button_pressed"]
+[connection signal="pressed" from="MainContainer/LeftPanel/PlayerSpeciesContainer/YellowAntsButton" to="." method="_on_yellow_ants_button_pressed"]
+[connection signal="item_selected" from="MainContainer/LeftPanel/OpponentSpeciesContainer/OpponentSpeciesOption" to="." method="_on_opponent_species_option_item_selected"]
+[connection signal="item_selected" from="MainContainer/LeftPanel/OpponentDifficultyContainer/DifficultyOption" to="." method="_on_difficulty_option_item_selected"]
+[connection signal="item_selected" from="MainContainer/CenterPanel/MapSelectionContainer/MapOption" to="." method="_on_map_option_item_selected"]
+[connection signal="pressed" from="BottomContainer/BackButton" to="." method="_on_back_button_pressed"]
+[connection signal="pressed" from="BottomContainer/StartMatchButton" to="." method="_on_start_match_button_pressed"]
