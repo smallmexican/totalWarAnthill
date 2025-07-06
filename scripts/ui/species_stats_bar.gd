@@ -21,18 +21,18 @@ extends Control
 # UI REFERENCES
 # ==============================================================================
 
-@onready var species_name_label: Label = $HBoxContainer/SpeciesInfo/SpeciesName
-@onready var species_icon: TextureRect = $HBoxContainer/SpeciesInfo/HBoxContainer/SpeciesIcon
-@onready var difficulty_label: Label = $HBoxContainer/SpeciesInfo/HBoxContainer/Difficulty
+@onready var species_name_label: Label = $CenterContainer/HBoxContainer/SpeciesInfo/SpeciesName
+@onready var species_icon: TextureRect = $CenterContainer/HBoxContainer/SpeciesInfo/HBoxContainer/SpeciesIcon
+@onready var difficulty_label: Label = $CenterContainer/HBoxContainer/SpeciesInfo/HBoxContainer/Difficulty
 
-@onready var attack_stat: RichTextLabel = $HBoxContainer/CombatStats/StatsContainer/AttackStat
-@onready var defense_stat: RichTextLabel = $HBoxContainer/CombatStats/StatsContainer/DefenseStat
-@onready var speed_stat: RichTextLabel = $HBoxContainer/CombatStats/StatsContainer/SpeedStat
+@onready var attack_stat: RichTextLabel = $CenterContainer/HBoxContainer/CombatStats/StatsContainer/AttackStat
+@onready var defense_stat: RichTextLabel = $CenterContainer/HBoxContainer/CombatStats/StatsContainer/DefenseStat
+@onready var speed_stat: RichTextLabel = $CenterContainer/HBoxContainer/CombatStats/StatsContainer/SpeedStat
 
-@onready var food_efficiency: RichTextLabel = $HBoxContainer/ResourceStats/ResourceContainer/FoodEfficiency
-@onready var material_efficiency: RichTextLabel = $HBoxContainer/ResourceStats/ResourceContainer/MaterialEfficiency
+@onready var food_efficiency: RichTextLabel = $CenterContainer/HBoxContainer/ResourceStats/ResourceContainer/FoodEfficiency
+@onready var material_efficiency: RichTextLabel = $CenterContainer/HBoxContainer/ResourceStats/ResourceContainer/MaterialEfficiency
 
-@onready var abilities_label: Label = $HBoxContainer/Abilities/AbilitiesList
+@onready var abilities_label: Label = $CenterContainer/HBoxContainer/Abilities/AbilitiesList
 
 # ==============================================================================
 # SPECIES DISPLAY
@@ -154,12 +154,8 @@ func show_species_tooltip():
 # ==============================================================================
 
 func _ready():
-	# Make the bar clickable for tooltip, but don't block other UI elements
-	mouse_entered.connect(_on_mouse_entered)
-	mouse_exited.connect(_on_mouse_exited)
-	
 	# Ensure the bar doesn't block input to other elements
-	mouse_filter = Control.MOUSE_FILTER_PASS
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	
 	# Debug: Check if all UI elements are found
 	print("🧬 SpeciesStatsBar: Checking UI element references...")
@@ -173,12 +169,4 @@ func _ready():
 	print("   Material efficiency: ", "✅" if material_efficiency else "❌")
 	print("   Abilities label: ", "✅" if abilities_label else "❌")
 
-func _on_mouse_entered():
-	modulate = Color(1.1, 1.1, 1.1)  # Slight highlight
-
-func _on_mouse_exited():
-	modulate = Color.WHITE
-
-func _gui_input(event):
-	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		show_species_tooltip()
+# Input handling removed - the species stats bar should be completely transparent to input

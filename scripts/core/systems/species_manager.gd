@@ -22,7 +22,7 @@ extends Node
 # SIGNALS
 # ==============================================================================
 
-signal species_loaded(species_id: String, species_data: SpeciesData)
+signal species_loaded(species_id: String, species_data: Resource)
 signal species_data_changed(species_id: String)
 signal all_species_loaded()
 
@@ -45,7 +45,7 @@ var species_paths: Dictionary = {
 }
 
 ## Fallback data for missing species
-var fallback_species_data: Resource
+var fallback_species_data: SpeciesDataSimple
 
 # ==============================================================================
 # INITIALIZATION
@@ -124,17 +124,11 @@ func create_fallback_species():
 	fallback_species_data.species_name = "Unknown Species"
 	fallback_species_data.species_id = "unknown"
 	fallback_species_data.description = "Fallback species data"
-		species_data = create_default_species_data(species_id)
-		save_species_data(species_id, species_data)
-	
-	# Cache the data
-	species_cache[species_id] = species_data
-	species_list.append(species_id)
-	
-	species_loaded.emit(species_id, species_data)
-	print("🐜 Loaded species: ", species_data.species_name)
-	
-	return species_data
+	fallback_species_data.attack_modifier = 1.0
+	fallback_species_data.defense_modifier = 1.0
+	fallback_species_data.speed_modifier = 1.0
+	fallback_species_data.food_efficiency = 1.0
+	fallback_species_data.material_efficiency = 1.0
 
 ## Get species data by ID
 func get_species_data(species_id: String) -> Resource:
@@ -157,8 +151,8 @@ func get_all_species_ids() -> Array[String]:
 	return species_list.duplicate()
 
 ## Get species data as array
-func get_all_species_data() -> Array[SpeciesData]:
-	var species_array: Array[SpeciesData] = []
+func get_all_species_data() -> Array[Resource]:
+	var species_array: Array[Resource] = []
 	for species_id in species_list:
 		species_array.append(species_cache[species_id])
 	return species_array
@@ -442,7 +436,7 @@ func create_harvester_ant_data(species: SpeciesData):
 # ==============================================================================
 
 ## Save species data to cache and file
-func save_species_data(species_id: String, species_data: SpeciesData):
+func save_species_data(species_id: String, species_data: Resource):
 	species_cache[species_id] = species_data
 	
 	if species_id in species_paths:
@@ -451,7 +445,7 @@ func save_species_data(species_id: String, species_data: SpeciesData):
 	species_data_changed.emit(species_id)
 
 ## Save species data to file
-func save_species_data_to_file(species_data: SpeciesData, file_path: String):
+func save_species_data_to_file(species_data: Resource, file_path: String):
 	var result = ResourceSaver.save(species_data, file_path)
 	if result != OK:
 		print("❌ Failed to save species data to: ", file_path)
@@ -480,7 +474,7 @@ func reload_all_species():
 # ==============================================================================
 
 ## Get species by name (user-friendly)
-func get_species_by_name(species_name: String) -> SpeciesData:
+func get_species_by_name(species_name: String) -> Resource:
 	for species_id in species_cache:
 		var species = species_cache[species_id]
 		if species.species_name == species_name:
@@ -497,11 +491,11 @@ func get_species_names() -> Array[String]:
 	return names
 
 ## Get species difficulty ratings
-func get_species_by_difficulty(max_difficulty: int = 3) -> Array[SpeciesData]:
-	var filtered: Array[SpeciesData] = []
+func get_species_by_difficulty(max_difficulty: int = 3) -> Array[Resource]:
+	var filtered: Array[Resource] = []
 	for species_id in species_list:
 		var species = species_cache[species_id]
-		if species.difficulty_rating <= max_difficulty:
+		if species.has_method("get") and species.get("difficulty_rating", 1) <= max_difficulty:
 			filtered.append(species)
 	return filtered
 

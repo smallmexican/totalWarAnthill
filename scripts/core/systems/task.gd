@@ -22,57 +22,57 @@ extends RefCounted
 # SIGNALS
 # ==============================================================================
 
-signal task_progress_updated(task: Task, progress: float)
-signal task_completed(task: Task)
-signal ant_assigned(task: Task, ant: Ant)
-signal ant_removed(task: Task, ant: Ant)
+signal task_progress_updated(task, progress: float)
+signal task_completed(task)
+signal ant_assigned(task, ant)
+signal ant_removed(task, ant)
 
 # ==============================================================================
 # CORE PROPERTIES
 # ==============================================================================
 
 ## Task identification
-@export var task_id: int = -1
-@export var task_type: String = ""  # gather, build, fight, patrol, transport
-@export var task_name: String = ""
-@export var description: String = ""
+var task_id: int = -1
+var task_type: String = ""  # gather, build, fight, patrol, transport
+var task_name: String = ""
+var description: String = ""
 
 ## Priority and scheduling
-@export var priority: int = 1  # 1 = low, 5 = critical
-@export var is_urgent: bool = false
-@export var creation_time: float
-@export var deadline: float = -1  # -1 = no deadline
+var priority: int = 1  # 1 = low, 5 = critical
+var is_urgent: bool = false
+var creation_time: float
+var deadline: float = -1  # -1 = no deadline
 
 ## Location and target
-@export var target_location: Vector2 = Vector2.ZERO
-@export var target_node: Node2D
-@export var work_radius: float = 50.0  # Area around target where work happens
+var target_location: Vector2 = Vector2.ZERO
+var target_node: Node2D
+var work_radius: float = 50.0  # Area around target where work happens
 
 ## Resource requirements
-@export var required_resources: Dictionary = {}  # resource_type: amount
-@export var resource_cost: Dictionary = {}  # Resources consumed by task
-@export var resource_reward: Dictionary = {}  # Resources gained from completion
+var required_resources: Dictionary = {}  # resource_type: amount
+var resource_cost: Dictionary = {}  # Resources consumed by task
+var resource_reward: Dictionary = {}  # Resources gained from completion
 
 ## Ant assignment
-@export var required_ants: int = 1
-@export var max_ants: int = 1
-var assigned_ants: Array[Ant] = []
+var required_ants: int = 1
+var max_ants: int = 1
+var assigned_ants: Array = []  # Array of Ant objects
 var preferred_ant_types: Array[String] = []  # Worker, Soldier, etc.
 
 ## Progress tracking
-@export var completion_progress: float = 0.0  # 0.0 to 1.0
-@export var estimated_time: float = 10.0  # Seconds to complete
-@export var actual_start_time: float = -1
-@export var work_rate: float = 1.0  # How fast the task progresses per ant per second
+var completion_progress: float = 0.0  # 0.0 to 1.0
+var estimated_time: float = 10.0  # Seconds to complete
+var actual_start_time: float = -1
+var work_rate: float = 1.0  # How fast the task progresses per ant per second
 
 ## Task state
-@export var status: String = "pending"  # pending, assigned, in_progress, completed, failed, cancelled
-@export var can_be_interrupted: bool = true
-@export var requires_continuous_work: bool = true
+var status: String = "pending"  # pending, assigned, in_progress, completed, failed, cancelled
+var can_be_interrupted: bool = true
+var requires_continuous_work: bool = true
 
 ## Dependencies
-var prerequisite_tasks: Array[Task] = []
-var dependent_tasks: Array[Task] = []
+var prerequisite_tasks: Array = []  # Array of Task objects
+var dependent_tasks: Array = []  # Array of Task objects
 var blocks_other_tasks: bool = false
 
 # ==============================================================================
@@ -98,7 +98,7 @@ func _init(type: String = "", location: Vector2 = Vector2.ZERO, ants_needed: int
 # ==============================================================================
 
 ## Assign an ant to this task
-func assign_ant(ant: Ant) -> bool:
+func assign_ant(ant) -> bool:
 	if ant == null:
 		push_warning("Attempted to assign null ant to task ", task_id)
 		return false
@@ -133,7 +133,7 @@ func assign_ant(ant: Ant) -> bool:
 	return true
 
 ## Remove an ant from this task
-func remove_ant(ant: Ant) -> bool:
+func remove_ant(ant) -> bool:
 	if ant == null or ant not in assigned_ants:
 		return false
 	
@@ -149,14 +149,14 @@ func remove_ant(ant: Ant) -> bool:
 	return true
 
 ## Check if this task can accept more ants
-func can_accept_ant(ant: Ant = null) -> bool:
+func can_accept_ant(ant = null) -> bool:
 	if assigned_ants.size() >= max_ants:
 		return false
 	
 	if ant and ant in assigned_ants:
 		return false
 	
-	if ant and not preferred_ant_types.is_empty() and ant.ant_type not in preferred_ant_types:
+	if ant and not preferred_ant_types.is_empty() and ant.get("ant_type", "") not in preferred_ant_types:
 		return false  # Strict type checking for this version
 	
 	return true
@@ -284,13 +284,13 @@ func distribute_rewards():
 # ==============================================================================
 
 ## Add a prerequisite task that must be completed first
-func add_prerequisite(task: Task):
+func add_prerequisite(task):
 	if task and task not in prerequisite_tasks:
 		prerequisite_tasks.append(task)
 		task.dependent_tasks.append(self)
 
 ## Remove a prerequisite task
-func remove_prerequisite(task: Task):
+func remove_prerequisite(task):
 	if task in prerequisite_tasks:
 		prerequisite_tasks.erase(task)
 		task.dependent_tasks.erase(self)

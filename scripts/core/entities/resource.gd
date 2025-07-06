@@ -17,17 +17,17 @@
 # - Creates strategic points of interest
 # ==============================================================================
 
-class_name Resource
+class_name GameResource
 extends Node2D
 
 # ==============================================================================
 # SIGNALS
 # ==============================================================================
 
-signal resource_harvested(resource: Resource, amount: int, harvester: Ant)
-signal resource_depleted(resource: Resource)
-signal resource_regenerated(resource: Resource, amount: int)
-signal accessibility_changed(resource: Resource, new_accessibility: float)
+signal resource_harvested(resource: GameResource, amount: int, harvester: Ant)
+signal resource_depleted(resource: GameResource)
+signal resource_regenerated(resource: GameResource, amount: int)
+signal accessibility_changed(resource: GameResource, new_accessibility: float)
 
 # ==============================================================================
 # CORE PROPERTIES
@@ -492,7 +492,10 @@ func update_visuals():
 	var current_color = resource_color
 	current_color.a = 0.3 + (quantity_ratio * 0.7)  # Fade as depleted
 	
-	if visual_effects is ColorRect:
+	# Update visual effects based on node type
+	if visual_effects.has_method("set_modulate"):
+		visual_effects.modulate = current_color
+	elif visual_effects.has_method("set_color"):
 		visual_effects.color = current_color
 	
 	# Update size based on quantity

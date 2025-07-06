@@ -29,8 +29,8 @@ signal population_changed(colony: Colony, new_population: int)
 signal resource_changed(colony: Colony, resource_type: String, new_amount: int)
 signal territory_expanded(colony: Colony, new_tiles: Array)
 signal building_constructed(colony: Colony, building: Building)
-signal ant_spawned(colony: Colony, ant: Ant)
-signal ant_died(colony: Colony, ant: Ant)
+signal ant_spawned(colony, ant)
+signal ant_died(colony, ant)
 signal colony_attacked(colony: Colony, attacker: Colony)
 signal research_completed(colony: Colony, research_name: String)
 
@@ -46,9 +46,12 @@ signal research_completed(colony: Colony, research_name: String)
 
 ## Population management
 @export var population: int = 0
+@export var current_population: int = 0  # Runtime population count
 @export var max_population: int = 100
 @export var population_growth_rate: float = 1.0
-var ants: Array[Ant] = []
+@export var happiness: float = 50.0  # 0-100 happiness scale
+@export var max_happiness: float = 100.0
+var ants: Array = []  # Array of Ant objects
 var ant_types_count: Dictionary = {}  # ant_type: count
 
 ## Resource storage
@@ -74,10 +77,10 @@ var building_slots: Dictionary = {}  # position: building_type
 var construction_queue: Array[Dictionary] = []
 
 ## Task management system
-var active_tasks: Array[Task] = []
-var completed_tasks: Array[Task] = []
-var task_queue: Array[Task] = []
-var task_priority_queue: Array[Task] = []
+var active_tasks: Array = []  # Array of Task objects
+var completed_tasks: Array = []  # Array of completed Task objects
+var task_queue: Array = []  # Array of queued Task objects
+var task_priority_queue: Array = []  # Array of priority Task objects
 
 ## Research and technology
 var available_research: Array[String] = ["Basic Tunneling", "Food Storage", "Soldier Training"]
@@ -95,7 +98,7 @@ var resource_efficiency: float = 1.0
 var construction_speed: float = 1.0
 
 ## AI and automation
-var ai_controller: AIController
+var ai_controller = null  # Will be set by GameState.AIController
 var automation_level: int = 0  # 0 = manual, 3 = full auto
 var colony_strategy: String = "balanced"  # aggressive, defensive, economic, balanced
 
@@ -250,7 +253,7 @@ func spawn_ant(ant_type: String, spawn_position: Vector2 = Vector2.ZERO) -> Ant:
 	return ant
 
 ## Remove ant from colony (when it dies)
-func remove_ant(ant: Ant):
+func remove_ant(ant):
 	if ant not in ants:
 		return
 	
@@ -282,20 +285,93 @@ func generate_ant_id() -> int:
 	return colony_id * 10000 + ants.size() + 1
 
 ## Get ants of specific type
-func get_ants_by_type(ant_type: String) -> Array[Ant]:
-	var filtered_ants: Array[Ant] = []
+func get_ants_by_type(ant_type: String) -> Array:
+	var filtered_ants: Array = []
 	for ant in ants:
 		if ant.ant_type == ant_type:
 			filtered_ants.append(ant)
 	return filtered_ants
 
 ## Get idle ants available for tasks
-func get_idle_ants() -> Array[Ant]:
-	var idle_ants: Array[Ant] = []
+func get_idle_ants() -> Array:
+	var idle_ants: Array = []
 	for ant in ants:
 		if ant.is_idle and ant.current_task == null:
 			idle_ants.append(ant)
 	return idle_ants
+
+# ==============================================================================
+# TASK MANAGEMENT
+# ==============================================================================
+
+## Add a new task to the colony
+func add_task(task):
+	if task in active_tasks:
+		print("⚠️ Task already exists: ", task.task_name if task.has_method("get") else "Unknown")
+		return
+	
+	active_tasks.append(task)
+	task_queue.append(task)
+	
+	# Try to assign ants immediately
+	assign_ants_to_task(task)
+	
+	print("📋 Task added to colony: ", task.task_name if task.has_method("get") else "Unknown")
+
+## Remove task from active tasks
+func remove_task(task):
+	if task in active_tasks:
+		active_tasks.erase(task)
+	
+	if task in task_queue:
+		task_queue.erase(task)
+	
+	print("📋 Task removed from colony: ", task.task_name if task.has_method("get") else "Unknown")
+
+## Assign available ants to a task
+func assign_ants_to_task(task):
+	var idle_ants = get_idle_ants()
+	var needed_ants = task.get_available_slots() if task.has_method("get_available_slots") else 1
+	
+	for i in range(min(needed_ants, idle_ants.size())):
+		var ant = idle_ants[i]
+		if task.has_method("can_accept_ant"):
+			if task.can_accept_ant(ant):
+				ant.assign_task(task)
+		else:
+			# Simple assignment if task doesn't have advanced methods
+			ant.current_task = task
+
+## Get a task for an idle ant
+func get_task_for_ant(ant):
+	# Find highest priority task that needs ants
+	var best_task = null
+	var best_priority = -1
+	
+	for task in active_tasks:
+		var can_accept = true
+		if task.has_method("can_accept_ant"):
+			can_accept = task.can_accept_ant(ant)
+		
+		var priority = 1
+		if task.has_method("get_priority_score"):
+			priority = task.get_priority_score()
+		
+		if can_accept and priority > best_priority:
+			best_task = task
+			best_priority = priority
+	
+	return best_task
+
+## Task completion handler
+func _on_task_completed(task):
+	print("✅ Colony task completed: ", task.task_name if task.has_method("get") else "Unknown")
+	completed_tasks.append(task)
+	remove_task(task)
+
+## Handle ant task completion signal
+func _on_ant_task_completed(ant, task):
+	print("🐜 Ant completed task: ", ant.ant_type if ant.has_method("get") else "Unknown", " finished ", task.task_name if task.has_method("get") else "Unknown")
 
 # ==============================================================================
 # RESOURCE MANAGEMENT
@@ -404,87 +480,18 @@ func calculate_material_income() -> int:
 	
 	return int((base_income + building_bonus + territory_bonus) * resource_efficiency)
 
-# ==============================================================================
-# TASK MANAGEMENT
-# ==============================================================================
+## Calculate food consumption based on population
+func calculate_food_consumption() -> int:
+	return current_population * 1  # 1 food per ant per generation tick
 
-## Create a new gather task
-func create_gather_task(location: Vector2, resource_type: String = "food") -> Task:
-	var task = Task.new("gather", location, 1)
-	task.task_name = "Gather " + resource_type.capitalize()
-	task.description = "Gather " + resource_type + " from the environment"
-	task.resource_reward = {resource_type: 5}
-	task.setup_task_type()
-	
-	add_task(task)
-	return task
+## Calculate material consumption for maintenance
+func calculate_material_consumption() -> int:
+	return buildings.size() * 2  # 2 materials per building per generation tick
 
-## Create a new build task
-func create_build_task(building_type: String, location: Vector2) -> Task:
-	var task = Task.new("build", location, 2)
-	task.task_name = "Build " + building_type
-	task.description = "Construct " + building_type + " building"
-	task.required_resources = {"materials": 20}
-	task.setup_task_type()
-	
-	add_task(task)
-	return task
+## Resource generation interval and timer
+var resource_generation_timer: float = 0.0
+var resource_generation_interval: float = 5.0  # Generate resources every 5 seconds
 
-## Create a combat task
-func create_combat_task(target: Node2D) -> Task:
-	var task = Task.new("fight", target.global_position, 3)
-	task.task_name = "Attack Enemy"
-	task.target_node = target
-	task.setup_task_type()
-	
-	add_task(task)
-	return task
-
-## Add task to colony task system
-func add_task(task: Task):
-	if task == null:
-		return
-	
-	active_tasks.append(task)
-	task.task_completed.connect(_on_task_completed)
-	
-	# Try to assign ants immediately
-	assign_ants_to_task(task)
-	
-	print("📋 Task added to colony: ", task.task_name)
-
-## Remove task from active tasks
-func remove_task(task: Task):
-	if task in active_tasks:
-		active_tasks.erase(task)
-	
-	if task in task_queue:
-		task_queue.erase(task)
-
-## Assign available ants to a task
-func assign_ants_to_task(task: Task):
-	var idle_ants = get_idle_ants()
-	var needed_ants = task.get_available_slots()
-	
-	for i in range(min(needed_ants, idle_ants.size())):
-		var ant = idle_ants[i]
-		if task.can_accept_ant(ant):
-			ant.assign_task(task)
-
-## Get a task for an idle ant
-func get_task_for_ant(ant: Ant) -> Task:
-	# Find highest priority task that needs ants
-	var best_task: Task = null
-	var best_priority = -1
-	
-	for task in active_tasks:
-		if task.can_accept_ant(ant) and task.get_priority_score() > best_priority:
-			best_task = task
-			best_priority = task.get_priority_score()
-	
-	return best_task
-
-## Update all active tasks
 func update_tasks(delta: float):
 	# Update task progress
 	for task in active_tasks.duplicate():
@@ -493,16 +500,6 @@ func update_tasks(delta: float):
 		# Remove completed or failed tasks
 		if task.status == "completed" or task.status == "failed":
 			remove_task(task)
-
-## Task completion handler
-func _on_task_completed(task: Task):
-	print("✅ Colony task completed: ", task.task_name)
-	completed_tasks.append(task)
-	remove_task(task)
-
-## Ant task completion handler
-func _on_ant_task_completed(ant: Ant, task: Task):
-	print("🐜 Ant ", ant.ant_id, " completed task: ", task.task_name)
 
 # ==============================================================================
 # BUILDING AND CONSTRUCTION
@@ -565,52 +562,48 @@ func can_build_at_location(location: Vector2) -> bool:
 
 ## Update population and growth
 func update_population(delta: float):
-	# Population growth is handled by spawning ants
-	# This function tracks population changes
-	population = ants.size()
-
-## Population growth tick
-func _on_population_growth_tick():
-	# Attempt to grow population if resources allow
-	if population < max_population and has_resource("food", 50):
-		# Decide what type of ant to spawn based on colony needs
-		var ant_type = decide_ant_type_to_spawn()
-		spawn_ant(ant_type)
-
-## Decide what type of ant to spawn based on colony needs
-func decide_ant_type_to_spawn() -> String:
-	var worker_ratio = float(ant_types_count.get("Worker", 0)) / max(population, 1)
-	var soldier_ratio = float(ant_types_count.get("Soldier", 0)) / max(population, 1)
+	# Update ant lifecycle and population
+	var total_ants = 0
+	for ant_type in ant_types_count:
+		total_ants += ant_types_count[ant_type]
 	
-	# Maintain balance: 60% workers, 30% soldiers, 10% others
-	if worker_ratio < 0.6:
-		return "Worker"
-	elif soldier_ratio < 0.3:
-		return "Soldier"
+	current_population = total_ants
+	
+	# Check population limits
+	if current_population > max_population:
+		print("⚠️ Colony overpopulated: ", current_population, "/", max_population)
+	
+	# Update happiness based on population density
+	var density_factor = float(current_population) / float(max_population)
+	if density_factor > 0.8:
+		modify_happiness(-5 * delta)  # Overcrowding penalty
+	elif density_factor < 0.3:
+		modify_happiness(2 * delta)   # Space bonus
+
+## Update resource generation and consumption
+func update_resources(delta: float):
+	# Resource generation from territory and buildings
+	resource_generation_timer += delta
+	
+	if resource_generation_timer >= resource_generation_interval:
+		resource_generation_timer = 0.0
+		_on_resource_generation_tick()
+	
+	# Resource consumption from population
+	var food_consumption = calculate_food_consumption()
+	var material_consumption = calculate_material_consumption()
+	
+	# Apply consumption
+	if resources.get("food", 0) >= food_consumption:
+		consume_resource("food", food_consumption)
 	else:
-		return "Scout"
-
-# ==============================================================================
-# RESEARCH AND TECHNOLOGY
-# ==============================================================================
-
-## Start researching a technology
-func start_research(tech_name: String) -> bool:
-	if tech_name not in available_research:
-		print("⚠️ Technology not available: ", tech_name)
-		return false
+		# Starvation penalty
+		modify_happiness(-10 * delta)
+		print("⚠️ Colony is starving!")
 	
-	if tech_name in researched_technologies:
-		print("⚠️ Technology already researched: ", tech_name)
-		return false
-	
-	current_research = tech_name
-	research_progress = 0.0
-	
-	print("🔬 Started researching: ", tech_name)
-	return true
+	if resources.get("materials", 0) >= material_consumption:
+		consume_resource("materials", material_consumption)
 
-## Update research progress
 func update_research(delta: float):
 	if current_research.is_empty():
 		return
@@ -671,7 +664,7 @@ func update_ai_decisions(delta: float):
 	ai_controller.make_decision()
 
 ## Set AI controller for this colony
-func set_ai_controller(controller: AIController):
+func set_ai_controller(controller):
 	ai_controller = controller
 	player_controlled = false
 
@@ -753,5 +746,40 @@ func get_debug_info() -> String:
 	]
 
 ## Handle ant death
-func _on_ant_died(ant: Ant):
+func _on_ant_died(ant):
 	remove_ant(ant)
+
+## Create a gather task at specified location
+func create_gather_task(location: Vector2):
+	var task = Task.new()
+	task.task_type = "gather"
+	task.task_name = "Gather Resources"
+	task.target_location = location
+	task.priority = 3
+	task.required_ants = 2
+	add_task(task)
+
+## Create a build task for specified building
+func create_build_task(building_type: String, location: Vector2):
+	var task = Task.new()
+	task.task_type = "build"
+	task.task_name = "Build " + building_type
+	task.target_location = location
+	task.priority = 2
+	task.required_ants = 3
+	add_task(task)
+
+## Handle population growth tick
+func _on_population_growth_tick():
+	print("🐜 Population growth tick for colony: ", colony_name)
+	
+	# Check if we can spawn new ants
+	if current_population < max_population and happiness > 30.0:
+		# Spawn new worker ants based on happiness and resources
+		if can_afford_resources({"food": 10, "larvae": 1}):
+			spawn_ant("Worker")
+
+## Modify colony happiness
+func modify_happiness(change: float):
+	happiness = clamp(happiness + change, 0.0, max_happiness)
+	print("🏛️ Colony happiness changed by ", change, " to ", happiness)

@@ -23,7 +23,7 @@ extends CharacterBody2D
 # SIGNALS
 # ==============================================================================
 
-signal task_completed(ant: Ant, task: Task)
+signal task_completed(ant: Ant, task)
 signal health_changed(ant: Ant, old_health: int, new_health: int)
 signal died(ant: Ant)
 signal resource_gathered(ant: Ant, resource_type: String, amount: int)
@@ -66,15 +66,15 @@ var carrying_resource: String = ""
 var carrying_amount: int = 0
 
 ## Task management
-var current_task: Task
-var task_queue: Array[Task] = []
+var current_task = null  # Task object
+var task_queue: Array = []  # Array of Task objects
 var is_idle: bool = true
 
 ## AI and behavior
 var home_colony: Colony
 var current_state: String = "idle"  # idle, moving, working, fighting, returning
 var target_node: Node2D
-var behavior_tree: BehaviorTree
+var behavior_tree = null  # Simple state machine for now
 
 # ==============================================================================
 # LIFECYCLE
@@ -144,8 +144,8 @@ func start_next_task():
 			set_target_position(current_task.target_location)
 		"fight":
 			current_state = "moving"
-			if current_task.target_node:
-				set_target_node(current_task.target_node)
+			if current_task != null and current_task.get("target_node"):
+				set_target_node(current_task.get("target_node"))
 		"patrol":
 			current_state = "moving"
 			set_target_position(current_task.target_location)

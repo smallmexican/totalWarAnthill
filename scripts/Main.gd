@@ -121,6 +121,16 @@ func load_game_scene(path: String):
 	$GameLayer.add_child(current_game_scene)
 	print("Main.gd: Scene added to GameLayer")
 	
+	# CRITICAL: We can't set a child scene as current_scene in Godot
+	# Instead, ensure the scene has proper focus and input handling
+	print("Main.gd: Ensuring proper input focus for: ", current_game_scene.name)
+	current_game_scene.grab_focus()
+	if current_game_scene.has_method("set_process_input"):
+		current_game_scene.set_process_input(true)
+		current_game_scene.set_process_unhandled_input(true)
+		current_game_scene.set_process_unhandled_key_input(true)
+	print("Main.gd: Input focus and processing enabled for: ", current_game_scene.name)
+	
 	# Clear any existing menu content since we're starting a game
 	clear_menu_layer()
 	print("Main.gd: MenuLayer cleared")
@@ -136,8 +146,14 @@ func load_game_scene(path: String):
 ## Show pause menu as an overlay without clearing the current game scene
 ## @note: This keeps the game scene active in the background
 func show_pause_menu():
+	print("Main.gd: show_pause_menu() called")
+	
 	# Clear any existing menu content from MenuLayer (but keep game scene)
-	clear_menu_layer()
+	# DON'T use clear_menu_layer() as it sets up deferred mouse_filter IGNORE
+	print("Main.gd: Clearing existing menus manually...")
+	for child in $MenuLayer.get_children():
+		print("Main.gd: Removing existing menu: ", child.name)
+		child.queue_free()
 	
 	# Load and instantiate the pause menu
 	var pause_menu = load("res://scenes/ui/PauseMenu.tscn").instantiate()
@@ -149,7 +165,7 @@ func show_pause_menu():
 	# Add it to the MenuLayer as an overlay
 	$MenuLayer.add_child(pause_menu)
 	
-	# Enable input blocking when menu is present
+	# CRITICAL: Enable input blocking when menu is present (don't defer this!)
 	$MenuLayer.mouse_filter = Control.MOUSE_FILTER_STOP
 	print("Main.gd: MenuLayer mouse_filter set to STOP (pause menu loaded)")
 
@@ -159,8 +175,11 @@ func show_game_menu():
 	print("Main.gd: show_game_menu() called")
 	
 	# Clear any existing menu content from MenuLayer (but keep game scene)
-	clear_menu_layer()
-	print("Main.gd: MenuLayer cleared")
+	# DON'T use clear_menu_layer() as it sets up deferred mouse_filter IGNORE
+	print("Main.gd: Clearing existing menus manually...")
+	for child in $MenuLayer.get_children():
+		print("Main.gd: Removing existing menu: ", child.name)
+		child.queue_free()
 	
 	# Load and instantiate the game menu
 	print("Main.gd: Loading GameMenu.tscn...")
@@ -185,7 +204,7 @@ func show_game_menu():
 	$MenuLayer.add_child(game_menu)
 	print("Main.gd: GameMenu added to MenuLayer")
 	
-	# Enable input blocking when menu is present
+	# CRITICAL: Enable input blocking when menu is present (don't defer this!)
 	$MenuLayer.mouse_filter = Control.MOUSE_FILTER_STOP
 	print("Main.gd: MenuLayer mouse_filter set to STOP (game menu loaded)")
 
@@ -226,9 +245,21 @@ func clear_game_layer():
 ## Clean up the MenuLayer by removing all child scenes
 ## @note: Uses queue_free() for safe cleanup during the next frame
 func clear_menu_layer():
+	print("=== MAIN: CLEAR_MENU_LAYER CALLED ===")
+	print("Main.gd: clear_menu_layer() called")
+	
+	# Check if MenuLayer exists
+	var menu_layer = $MenuLayer
+	if not menu_layer:
+		print("ERROR: MenuLayer not found!")
+		return
+	
+	print("Main.gd: MenuLayer found with ", menu_layer.get_child_count(), " children")
+	
 	# Safely remove all children from the MenuLayer
 	# queue_free() ensures cleanup happens at a safe time
-	for child in $MenuLayer.get_children():
+	for child in menu_layer.get_children():
+		print("Main.gd: Freeing child: ", child.name, " (", child.get_class(), ")")
 		child.queue_free()
 	
 	# Defer the mouse filter change until after nodes are actually freed
@@ -238,8 +269,45 @@ func clear_menu_layer():
 
 ## Set MenuLayer mouse filter to IGNORE after menu nodes are freed
 func _set_menu_layer_ignore():
-	$MenuLayer.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	print("Main.gd: MenuLayer mouse_filter set to IGNORE (deferred)")
+	print("=== MAIN: SET_MENU_LAYER_IGNORE CALLED ===")
+	var menu_layer = $MenuLayer
+	if menu_layer:
+		# Only set to IGNORE if there are no menu children
+		# If there are children, a new menu was loaded and needs STOP
+		if menu_layer.get_child_count() == 0:
+			menu_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			print("Main.gd: MenuLayer mouse_filter set to IGNORE (no menus active)")
+		else:
+			print("Main.gd: MenuLayer has children - keeping STOP filter for menu input")
+		
+		print("Main.gd: MenuLayer children remaining: ", menu_layer.get_child_count())
+		
+		# Double-check that game layer is receiving input when no menus are active
+		if menu_layer.get_child_count() == 0:
+			var game_layer = $GameLayer
+			if game_layer:
+				print("Main.gd: GameLayer mouse_filter: ", game_layer.mouse_filter)
+				print("Main.gd: GameLayer children: ", game_layer.get_child_count())
+				for child in game_layer.get_children():
+					print("   - ", child.name, " (", child.get_class(), ")")
+					if child.has_method("grab_focus"):
+						print("     Attempting to restore focus to: ", child.name)
+						child.grab_focus()
+					
+					# CRITICAL FIX: We can't set a child scene as current_scene in Godot
+					# Instead, ensure the scene has proper focus and input handling
+					if child.name == "StrategicMap" or child.name == "ColonyView":
+						print("     Ensuring proper input focus for: ", child.name)
+						# Grab focus to ensure input events reach this scene
+						child.grab_focus()
+						# Make sure input processing is enabled
+						if child.has_method("set_process_input"):
+							child.set_process_input(true)
+							child.set_process_unhandled_input(true)
+							child.set_process_unhandled_key_input(true)
+						print("     Input focus and processing restored for: ", child.name)
+	else:
+		print("ERROR: MenuLayer not found in _set_menu_layer_ignore")
 
 # ------------------------------------------------------------------------------
 # FUTURE METHODS (TO BE IMPLEMENTED)

@@ -12,127 +12,145 @@ script = ExtResource("1_stats_bar")
 
 [node name="Background" type="ColorRect" parent="."]
 layout_mode = 1
-anchors_preset = 15
+anchors_preset = 10
 anchor_right = 1.0
-anchor_bottom = 1.0
+offset_bottom = 80.0
 mouse_filter = 2
 color = Color(0.1, 0.1, 0.1, 0.8)
 
-[node name="HBoxContainer" type="HBoxContainer" parent="."]
+[node name="CenterContainer" type="CenterContainer" parent="."]
 layout_mode = 1
-anchors_preset = 15
+anchors_preset = 10
 anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 10.0
-offset_top = 10.0
-offset_right = -10.0
-offset_bottom = -10.0
+offset_bottom = 80.0
+mouse_filter = 2
 
-[node name="SpeciesInfo" type="VBoxContainer" parent="HBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="CenterContainer"]
+layout_mode = 2
+custom_minimum_size = Vector2(800, 0)
+mouse_filter = 2
+
+[node name="SpeciesInfo" type="VBoxContainer" parent="CenterContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+mouse_filter = 2
 
-[node name="SpeciesName" type="Label" parent="HBoxContainer/SpeciesInfo"]
+[node name="SpeciesName" type="Label" parent="CenterContainer/HBoxContainer/SpeciesInfo"]
 layout_mode = 2
 text = "Fire Ant"
 theme_type_variation = "HeaderMedium"
 
-[node name="HBoxContainer" type="HBoxContainer" parent="HBoxContainer/SpeciesInfo"]
+[node name="HBoxContainer" type="HBoxContainer" parent="CenterContainer/HBoxContainer/SpeciesInfo"]
 layout_mode = 2
+mouse_filter = 2
 
-[node name="SpeciesIcon" type="TextureRect" parent="HBoxContainer/SpeciesInfo/HBoxContainer"]
+[node name="SpeciesIcon" type="TextureRect" parent="CenterContainer/HBoxContainer/SpeciesInfo/HBoxContainer"]
 layout_mode = 2
 custom_minimum_size = Vector2(32, 32)
+mouse_filter = 2
 texture_filter = 0
 expand_mode = 3
 stretch_mode = 5
 
-[node name="Difficulty" type="Label" parent="HBoxContainer/SpeciesInfo/HBoxContainer"]
+[node name="Difficulty" type="Label" parent="CenterContainer/HBoxContainer/SpeciesInfo/HBoxContainer"]
 layout_mode = 2
 text = "★★☆"
 theme_type_variation = "HeaderSmall"
 
-[node name="Separator1" type="VSeparator" parent="HBoxContainer"]
+[node name="Separator1" type="VSeparator" parent="CenterContainer/HBoxContainer"]
 layout_mode = 2
+mouse_filter = 2
 
-[node name="CombatStats" type="VBoxContainer" parent="HBoxContainer"]
+[node name="CombatStats" type="VBoxContainer" parent="CenterContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+mouse_filter = 2
 
-[node name="StatsTitle" type="Label" parent="HBoxContainer/CombatStats"]
+[node name="StatsTitle" type="Label" parent="CenterContainer/HBoxContainer/CombatStats"]
 layout_mode = 2
 text = "Combat Stats"
 theme_type_variation = "HeaderSmall"
 horizontal_alignment = 1
 
-[node name="StatsContainer" type="HBoxContainer" parent="HBoxContainer/CombatStats"]
+[node name="StatsContainer" type="HBoxContainer" parent="CenterContainer/HBoxContainer/CombatStats"]
 layout_mode = 2
+mouse_filter = 2
 
-[node name="AttackStat" type="RichTextLabel" parent="HBoxContainer/CombatStats/StatsContainer"]
+[node name="AttackStat" type="RichTextLabel" parent="CenterContainer/HBoxContainer/CombatStats/StatsContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+mouse_filter = 2
 bbcode_enabled = true
 text = "ATK: [color=green]1.3[/color]"
 fit_content = true
 
-[node name="DefenseStat" type="RichTextLabel" parent="HBoxContainer/CombatStats/StatsContainer"]
+[node name="DefenseStat" type="RichTextLabel" parent="CenterContainer/HBoxContainer/CombatStats/StatsContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+mouse_filter = 2
 bbcode_enabled = true
 text = "DEF: [color=white]1.1[/color]"
 fit_content = true
 
-[node name="SpeedStat" type="RichTextLabel" parent="HBoxContainer/CombatStats/StatsContainer"]
+[node name="SpeedStat" type="RichTextLabel" parent="CenterContainer/HBoxContainer/CombatStats/StatsContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+mouse_filter = 2
 bbcode_enabled = true
 text = "SPD: [color=white]1.0[/color]"
 fit_content = true
 
-[node name="Separator2" type="VSeparator" parent="HBoxContainer"]
+[node name="Separator2" type="VSeparator" parent="CenterContainer/HBoxContainer"]
 layout_mode = 2
+mouse_filter = 2
 
-[node name="ResourceStats" type="VBoxContainer" parent="HBoxContainer"]
+[node name="ResourceStats" type="VBoxContainer" parent="CenterContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+mouse_filter = 2
 
-[node name="ResourceTitle" type="Label" parent="HBoxContainer/ResourceStats"]
+[node name="ResourceTitle" type="Label" parent="CenterContainer/HBoxContainer/ResourceStats"]
 layout_mode = 2
 text = "Resource Efficiency"
 theme_type_variation = "HeaderSmall"
 horizontal_alignment = 1
 
-[node name="ResourceContainer" type="HBoxContainer" parent="HBoxContainer/ResourceStats"]
+[node name="ResourceContainer" type="HBoxContainer" parent="CenterContainer/HBoxContainer/ResourceStats"]
 layout_mode = 2
+mouse_filter = 2
 
-[node name="FoodEfficiency" type="RichTextLabel" parent="HBoxContainer/ResourceStats/ResourceContainer"]
+[node name="FoodEfficiency" type="RichTextLabel" parent="CenterContainer/HBoxContainer/ResourceStats/ResourceContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+mouse_filter = 2
 bbcode_enabled = true
 text = "Food: [color=red]-10%[/color]"
 fit_content = true
 
-[node name="MaterialEfficiency" type="RichTextLabel" parent="HBoxContainer/ResourceStats/ResourceContainer"]
+[node name="MaterialEfficiency" type="RichTextLabel" parent="CenterContainer/HBoxContainer/ResourceStats/ResourceContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+mouse_filter = 2
 bbcode_enabled = true
 text = "Materials: [color=red]-20%[/color]"
 fit_content = true
 
-[node name="Separator3" type="VSeparator" parent="HBoxContainer"]
+[node name="Separator3" type="VSeparator" parent="CenterContainer/HBoxContainer"]
 layout_mode = 2
+mouse_filter = 2
 
-[node name="Abilities" type="VBoxContainer" parent="HBoxContainer"]
+[node name="Abilities" type="VBoxContainer" parent="CenterContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 4
+mouse_filter = 2
 
-[node name="AbilitiesTitle" type="Label" parent="HBoxContainer/Abilities"]
+[node name="AbilitiesTitle" type="Label" parent="CenterContainer/HBoxContainer/Abilities"]
 layout_mode = 2
 text = "Special Abilities"
 theme_type_variation = "HeaderSmall"
 horizontal_alignment = 1
 
-[node name="AbilitiesList" type="Label" parent="HBoxContainer/Abilities"]
+[node name="AbilitiesList" type="Label" parent="CenterContainer/HBoxContainer/Abilities"]
 layout_mode = 2
 text = "Fire Attack, Heat Resistance"
 autowrap_mode = 2

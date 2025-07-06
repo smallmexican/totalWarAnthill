@@ -31,7 +31,7 @@ signal game_ended(winner: Colony, condition: String)
 signal colony_created(colony: Colony)
 signal colony_destroyed(colony: Colony)
 signal research_completed(colony: Colony, tech: String)
-signal resource_node_discovered(resource: Resource)
+signal resource_node_discovered(resource: GameResource)
 signal turn_completed(turn_number: int)
 
 # ==============================================================================
@@ -769,11 +769,11 @@ func _on_population_changed(colony: Colony, new_population: int):
 		handle_colony_destruction(colony)
 
 ## Handle resource depletion
-func _on_resource_depleted(resource: Resource):
+func _on_resource_depleted(resource: GameResource):
 	print("💀 Resource depleted: ", resource.resource_name)
 
 ## Handle resource harvesting
-func _on_resource_harvested(resource: Resource, amount: int, harvester: Ant):
+func _on_resource_harvested(resource: GameResource, amount: int, harvester: Ant):
 	# Track discovered resources
 	if resource not in discovered_resources:
 		discovered_resources.append(resource)
